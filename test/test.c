@@ -61,4 +61,6 @@ void main() {
     lute_window_root(win, (LuteWidget*)group);
     lute_main();
     lute_deinit();
+
+    return 0;
 }

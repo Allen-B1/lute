@@ -18,14 +18,14 @@ void lute_deinit() {
     rhmap_deinit(&lute_xcb_state.windows);
 }
 
-/** Handles incoming XCB events. If the mainloop should be exited, returns true. */
-static bool handle_events() {
+/** Handles incoming resize events & adds other events to the given arraylist. */
+static void get_events(ArrList* events) {
     while (true) {
         xcb_generic_event_t* event = xcb_poll_for_event(lute_xcb_state.conn);
         if (event == NULL) break;
 
         switch (event->response_type & ~0x80) {
-        // 1a. LAYOUT
+        // 2. Layout
         case XCB_CONFIGURE_NOTIFY: {
             xcb_configure_notify_event_t* resize = (xcb_configure_notify_event_t*)event;
             xcb_window_t id = resize->window;
@@ -47,28 +47,78 @@ static bool handle_events() {
                     .height = resize->height
                 });
             break; }
-        // 1b. EXPOSE
-        case XCB_EXPOSE: {
-            xcb_expose_event_t* expose = (xcb_expose_event_t*)event;
-            xcb_window_t id = expose->window;
-            LuteWindow* win = rhmap_get(&lute_xcb_state.windows, (void*)id);
-            if (win == NULL) {
-                fprintf(stderr, "Lute error: window in expose does not exist");
-                continue;
-            }
-
-            LuteRect* rect = malloc(sizeof(LuteRect));
-            rect->x = expose->x;
-            rect->y = expose->y;
-            rect->width = expose->width;
-            rect->height = expose->height;
-            
-            arrlist_add(&win->dirty_areas, rect);
-
-            break; }
+        default:
+            arrlist_add(events, event);
         }
     }
-    return false;
+}
+
+static enum LuteMouseButton button_xcb_to_mouse (int button) {
+    switch (button) {
+        case 1: return LUTE_MOUSEBUTTON_LEFT;
+        case 2: return LUTE_MOUSEBUTTON_MIDDLE;
+        case 3: return LUTE_MOUSEBUTTON_RIGHT;
+        case 4: return LUTE_MOUSEBUTTON_SCROLL_UP;
+        case 5: return LUTE_MOUSEBUTTON_SCROLL_DOWN;
+        default: return LUTE_MOUSEBUTTON_UNKNOWN;
+    }
+}
+
+/** Handles all events in the array list */
+static void handle_events(ArrList* events) {
+    for (int i = 0; i < events->len; i++) {
+        xcb_generic_event_t* event = arrlist_get(events, i);
+        switch (event->response_type & ~0x80) {
+            // 1b. EXPOSE
+            case XCB_EXPOSE: {
+                xcb_expose_event_t* expose = (xcb_expose_event_t*)event;
+                xcb_window_t id = expose->window;
+                LuteWindow* win = rhmap_get(&lute_xcb_state.windows, (void*)id);
+                if (win == NULL) {
+                    fprintf(stderr, "Lute error: window in expose does not exist");
+                    continue;
+                }
+
+                LuteRect* rect = malloc(sizeof(LuteRect));
+                rect->x = expose->x;
+                rect->y = expose->y;
+                rect->width = expose->width;
+                rect->height = expose->height;
+                
+                arrlist_add(&win->dirty_areas, rect);
+
+                break; }
+            case XCB_BUTTON_PRESS: {
+                xcb_button_press_event_t* btn = (xcb_button_press_event_t*)event;
+                xcb_window_t id = btn->event;
+                LuteWindow* win = rhmap_get(&lute_xcb_state.windows, (void*)id);
+                if (win == NULL) {
+                    fprintf(stderr, "Lute error: window in button press event does not exist");
+                    continue;
+                }
+                enum LuteMouseButton button = button_xcb_to_mouse(btn->detail);
+                if (win->root != NULL && win->root->vtable->on_mousedown != NULL) {
+                    win->root->vtable->on_mousedown(win->root, button, btn->event_x, btn->event_y);
+                }
+
+                printf("button press event: %d (%d, %d)\n", btn->detail, btn->event_x, btn->event_y);
+
+                break; }
+            case XCB_BUTTON_RELEASE: {
+                xcb_button_press_event_t* btn = (xcb_button_press_event_t*)event;
+                xcb_window_t id = btn->event;
+                LuteWindow* win = rhmap_get(&lute_xcb_state.windows, (void*)id);
+                if (win == NULL) {
+                    fprintf(stderr, "Lute error: window in button press event does not exist");
+                    continue;
+                }
+                enum LuteMouseButton button = button_xcb_to_mouse(btn->detail);
+                if (win->root != NULL && win->root->vtable->on_mouseup != NULL) {
+                    win->root->vtable->on_mouseup(win->root, button, btn->event_x, btn->event_y);
+                }
+                break; }
+        }
+    }
 }
 
 static xcb_visualtype_t* get_root_visual() {
@@ -92,7 +142,7 @@ static void draw() {
     LuteWindow* win;
     rhmap_iter(&lute_xcb_state.windows, &id, &win, {
         if (win->root == NULL) continue;
-        if (!win->all_dirty && win->dirty_areas.len == 0 && win->dirty.len == 0) {
+        if (!win->all_dirty && win->dirty_areas.len == 0) {
             continue;
         }
   
@@ -103,24 +153,18 @@ static void draw() {
             puts("all dirty...!");
             win->root->vtable->draw(win->root, ctx, win->root->_rect);
             win->all_dirty = false;
+            arrlist_clear(&win->dirty_areas);
             continue;
         }
-
-        for (size_t i = 0; i < win->dirty.len; i++) {
-            LuteWidget* widget = win->dirty.data[i];
-            arrlist_add(&win->dirty_areas, &widget->_rect);
-        }
-
-        arrlist_clear(&win->dirty);
+        printf("dirty areas: %d\n", (int)win->dirty_areas.len);
 
         for (size_t i = 0; i < win->dirty_areas.len; i++) {
             LuteRect* rect = win->dirty_areas.data[i];
             win->root->vtable->draw(win->root, ctx, lute_rect_intersect(*rect, win->root->_rect));
             continue;
         }
-
         arrlist_clear(&win->dirty_areas);
-//        cairo_paint(ctx);
+
         cairo_destroy(ctx);
         cairo_surface_destroy(surface);
     });
@@ -128,12 +172,14 @@ static void draw() {
 
 void lute_main() {
     xcb_flush (lute_xcb_state.conn);
+    ArrList events;
+    arrlist_init(&events, 4);
     while (true) {
-        if (handle_events()) {
-            break;
-        }
+        get_events(&events); // 1 & 2: Events + Layout
+        handle_events(&events); // 3: Update
+        arrlist_clear(&events);
         xcb_flush (lute_xcb_state.conn);
-        draw();
+        draw(); // 4: Draw
         xcb_flush (lute_xcb_state.conn);
     }
 }
