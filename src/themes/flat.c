@@ -5,7 +5,7 @@ void flat_button_draw_down(LuteButton* button, cairo_t* ctx) {
     cairo_rectangle(ctx, button->super._rect.x, button->super._rect.y, button->super._rect.width, button->super._rect.height);
     cairo_fill(ctx);
 
-    cairo_set_source_rgba(ctx, lute_color_red(button->super.background), lute_color_green(button->super.background), lute_color_blue(button->super.background), 1.0);
+    cairo_set_source_rgba(ctx, lute_color_red(button->super.background) / 255.0, lute_color_green(button->super.background) / 255.0, lute_color_blue(button->super.background) / 255.0, 1.0);
     cairo_rectangle(ctx, button->super._rect.x - 2.0, button->super._rect.y - 2.0, button->super._rect.width, button->super._rect.height);
     cairo_fill(ctx);
 
@@ -23,7 +23,7 @@ void flat_button_draw_up(LuteButton* button, cairo_t* ctx) {
     cairo_rectangle(ctx, button->super._rect.x, button->super._rect.y, button->super._rect.width, button->super._rect.height);
     cairo_fill(ctx);
 
-    cairo_set_source_rgba(ctx, lute_color_red(button->super.background), lute_color_green(button->super.background), lute_color_blue(button->super.background), 1.0);
+    cairo_set_source_rgba(ctx, lute_color_red(button->super.background) / 255.0, lute_color_green(button->super.background) / 255.0, lute_color_blue(button->super.background) / 255.0, 1.0);
     cairo_rectangle(ctx, button->super._rect.x - 4.0, button->super._rect.y - 4.0, button->super._rect.width, button->super._rect.height);
     cairo_fill(ctx);
 

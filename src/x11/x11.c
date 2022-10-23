@@ -17,24 +17,16 @@ void lute_init() {
     lute_xcb_state.visual = NULL;
     xcb_depth_iterator_t iter = xcb_screen_allowed_depths_iterator(lute_xcb_state.screen);
     for (; iter.rem; xcb_depth_next(&iter)) {
-        if (iter.data->depth != 32) continue;
-
         xcb_visualtype_iterator_t visual_iter = xcb_depth_visuals_iterator(iter.data);
         for (; visual_iter.rem; xcb_visualtype_next(&visual_iter)) {
-//            if (visual_iter.data->visual_id == lute_xcb_state.screen->root_visual) {
+            if (visual_iter.data->visual_id == lute_xcb_state.screen->root_visual) {
                 lute_xcb_state.visual = visual_iter.data;
                 goto found_visual;
-//            }
+            }
         }
     }
     
     found_visual:;
-    lute_xcb_state.colormap = xcb_generate_id(lute_xcb_state.conn);
-    xcb_void_cookie_t cookie = xcb_create_colormap_checked(lute_xcb_state.conn, XCB_COLORMAP_ALLOC_NONE, lute_xcb_state.colormap, lute_xcb_state.screen->root, lute_xcb_state.visual->visual_id);
-    xcb_generic_error_t* err = xcb_request_check(lute_xcb_state.conn, cookie);
-    if (err != NULL)
-        printf("error opcode: %d\n", err->major_code);
-    printf("visual id: %d\n", lute_xcb_state.visual->visual_id);
 }
 
 void lute_deinit() {
@@ -158,13 +150,13 @@ static void draw() {
         cairo_t* ctx = cairo_create(surface);
 
         if (win->all_dirty) {
-            puts("all dirty...!");
+//            puts("all dirty...!");
             win->root->vtable->draw(win->root, ctx, win->root->_rect);
             win->all_dirty = false;
             arrlist_clear(&win->dirty_areas);
             continue;
         }
-        printf("dirty areas: %d\n", (int)win->dirty_areas.len);
+//        printf("dirty areas: %d\n", (int)win->dirty_areas.len);
 
         for (size_t i = 0; i < win->dirty_areas.len; i++) {
             LuteRect* rect = win->dirty_areas.data[i];
