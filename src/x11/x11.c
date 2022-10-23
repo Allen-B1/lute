@@ -156,10 +156,11 @@ static void draw() {
             arrlist_clear(&win->dirty_areas);
             continue;
         }
-//        printf("dirty areas: %d\n", (int)win->dirty_areas.len);
 
+//        printf("dirty areas: %d\n", (int)win->dirty_areas.len);
         for (size_t i = 0; i < win->dirty_areas.len; i++) {
             LuteRect* rect = win->dirty_areas.data[i];
+//            printf(" => dirty area: (%d, %d) %dx%d\n", rect->x, rect->y, rect->width, rect->height);
             win->root->vtable->draw(win->root, ctx, lute_rect_intersect(*rect, win->root->_rect));
             continue;
         }

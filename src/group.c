@@ -38,6 +38,7 @@ void lute_group_draw(LuteWidget* widget, cairo_t* ctx, LuteRect rectToPaint) {
         LuteWidget* child = group->children[i];
         LuteRect intersectRect = lute_rect_intersect(rectToPaint, child->_rect);
         if (!lute_rect_empty(intersectRect)) {
+//            printf("    -> drawing widget: %x\n", (int)((uintptr_t)child) & 0xfff);
             child->vtable->draw(child, ctx, intersectRect);
         }
     }
@@ -49,7 +50,6 @@ bool lute_group_add(LuteGroup* group, LuteWidget* child) {
         size_t new_cap = group->children_cap == 0 ? 4 : group->children_cap * 2;
         LuteWidget** new_children = realloc(group->children, sizeof(LuteWidget*) * new_cap);
         if (new_children == NULL) return false;
-
         new_children[group->children_len] = child;
 
         group->children = new_children;

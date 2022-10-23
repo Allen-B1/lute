@@ -38,13 +38,7 @@ void lute_button_on_mousedown(LuteWidget* widget, enum LuteMouseButton button, u
         btn->down = true;
     }
 
-    LuteRect rect;
-    memcpy(&rect, &widget->_rect, sizeof(LuteRect));
-    rect.x -= 6;
-    rect.y -= 6;
-    rect.width += 6;
-    rect.height += 6;
-    lute_window_mark_dirty_rect(widget->window, rect);
+    lute_window_mark_dirty_rect(widget->window, widget->_rect);
 }
 
 void lute_button_on_mouseup(LuteWidget* widget, enum LuteMouseButton button, uint16_t x, uint16_t y) {
@@ -54,11 +48,5 @@ void lute_button_on_mouseup(LuteWidget* widget, enum LuteMouseButton button, uin
     }
     btn->down = false;
 
-    LuteRect rect;
-    memcpy(&rect, &widget->_rect, sizeof(LuteRect));
-    rect.x -= 4;
-    rect.y -= 4;
-    rect.width += 4;
-    rect.height += 4;
-    lute_window_mark_dirty_rect(widget->window, rect);
+    lute_window_mark_dirty_rect(widget->window, widget->_rect);
 }
