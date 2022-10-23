@@ -11,6 +11,30 @@ LuteState lute_xcb_state;
 void lute_init() {
     lute_xcb_state.conn = xcb_connect(NULL, NULL);
     rhmap_init(&lute_xcb_state.windows, 0, (void*)rhmap_eq_int, (void*)rhmap_djb2_int);
+
+    lute_xcb_state.screen = xcb_setup_roots_iterator (xcb_get_setup (lute_xcb_state.conn)).data;
+
+    lute_xcb_state.visual = NULL;
+    xcb_depth_iterator_t iter = xcb_screen_allowed_depths_iterator(lute_xcb_state.screen);
+    for (; iter.rem; xcb_depth_next(&iter)) {
+        if (iter.data->depth != 32) continue;
+
+        xcb_visualtype_iterator_t visual_iter = xcb_depth_visuals_iterator(iter.data);
+        for (; visual_iter.rem; xcb_visualtype_next(&visual_iter)) {
+//            if (visual_iter.data->visual_id == lute_xcb_state.screen->root_visual) {
+                lute_xcb_state.visual = visual_iter.data;
+                goto found_visual;
+//            }
+        }
+    }
+    
+    found_visual:;
+    lute_xcb_state.colormap = xcb_generate_id(lute_xcb_state.conn);
+    xcb_void_cookie_t cookie = xcb_create_colormap_checked(lute_xcb_state.conn, XCB_COLORMAP_ALLOC_NONE, lute_xcb_state.colormap, lute_xcb_state.screen->root, lute_xcb_state.visual->visual_id);
+    xcb_generic_error_t* err = xcb_request_check(lute_xcb_state.conn, cookie);
+    if (err != NULL)
+        printf("error opcode: %d\n", err->major_code);
+    printf("visual id: %d\n", lute_xcb_state.visual->visual_id);
 }
 
 void lute_deinit() {
@@ -121,22 +145,6 @@ static void handle_events(ArrList* events) {
     }
 }
 
-static xcb_visualtype_t* get_root_visual() {
-    xcb_screen_t* screen = xcb_setup_roots_iterator (xcb_get_setup (lute_xcb_state.conn)).data;
-    if (screen == NULL) return NULL;
-    xcb_depth_iterator_t iter = xcb_screen_allowed_depths_iterator(screen);
-    for (; iter.rem; xcb_depth_next(&iter)) {
-        xcb_visualtype_iterator_t visual_iter = xcb_depth_visuals_iterator(iter.data);
-        for (; visual_iter.rem; xcb_visualtype_next(&visual_iter)) {
-            if (screen->root_visual == visual_iter.data->visual_id) {
-                return visual_iter.data;
-            }
-        }
-    }
-
-    return NULL;
-}
-
 static void draw() {
     xcb_window_t id;
     LuteWindow* win;
@@ -146,7 +154,7 @@ static void draw() {
             continue;
         }
   
-        cairo_surface_t* surface = cairo_xcb_surface_create(lute_xcb_state.conn, id, get_root_visual(), win->width, win->height);
+        cairo_surface_t* surface = cairo_xcb_surface_create(lute_xcb_state.conn, id, lute_xcb_state.visual, win->width, win->height);
         cairo_t* ctx = cairo_create(surface);
 
         if (win->all_dirty) {
