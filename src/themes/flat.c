@@ -41,7 +41,7 @@ const LuteButtonStyle FLAT_BUTTON_STYLE = {
     .draw_up = flat_button_draw_up    
 };
 
-const LuteColor FLAT_BUTTON_PRIMARY_BACKGROUND = 0x0000ffff;
+const LuteColor FLAT_BUTTON_PRIMARY_BACKGROUND = 0x2196f3ff;
 
 const LuteColor FLAT_GROUP_BACKGROUND = 0xffffffff;
 
