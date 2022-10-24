@@ -36,15 +36,9 @@ void lute_deinit() {
 
 /** Handles incoming resize events & adds other events to the given arraylist. */
 static void get_events(ArrList* events) {
-    bool first = true;
+    xcb_generic_event_t* event = xcb_poll_for_event(lute_xcb_state.conn);
     while (true) {
-        xcb_generic_event_t* event = xcb_poll_for_event(lute_xcb_state.conn);
-        if (event == NULL && first) {
-            event = xcb_wait_for_event(lute_xcb_state.conn);
-        }
         if (event == NULL) break;
-
-        first = false;
 
         switch (event->response_type & ~0x80) {
         // 2. Layout
@@ -72,6 +66,8 @@ static void get_events(ArrList* events) {
         default:
             arrlist_add(events, event);
         }
+
+        event = xcb_poll_for_event(lute_xcb_state.conn);
     }
 }
 
