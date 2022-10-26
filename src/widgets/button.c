@@ -1,4 +1,4 @@
-#include "button.h"
+#include <lute/widgets/button.h>
 #include <string.h>
 
 const LuteWidgetTable BUTTON_TABLE = {

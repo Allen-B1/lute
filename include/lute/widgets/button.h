@@ -1,7 +1,7 @@
 #ifndef _LUTE_BUTTON_H
 #define _LUTE_BUTTON_H
 
-#include "../lute.h"
+#include <lute/core.h>
 
 struct LuteButton;
 
@@ -22,8 +22,8 @@ typedef struct LuteButton {
     void* click_data;
 } LuteButton;
 
-extern const LuteButtonStyle* const LUTE_BUTTON_DEFAULT_STYLE;
-extern const LuteColor LUTE_BUTTON_PRIMARY_BACKGROUND;
+extern LuteButtonStyle* const LUTE_BUTTON_DEFAULT_STYLE;
+extern LuteColor LUTE_BUTTON_PRIMARY_BACKGROUND;
 
 void lute_button_init(LuteButton* button, LuteLayout layout, const char* label);
 void lute_button_draw(LuteWidget* widget, cairo_t* ctx, LuteRect rectToPaint);

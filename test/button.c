@@ -1,8 +1,7 @@
 #include <lute.h>
-#include <widgets/button.h>
 
 #define LUTE_FLAT_THEME
-#include <themes/flat.c>
+#include "../src/themes/flat.c"
 
 static LuteWindow* window = NULL;
 static int count = 0;

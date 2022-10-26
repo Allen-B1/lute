@@ -1,3 +1,4 @@
+#include "../internal.h"
 #include <rhmap.h>
 #include <arrlist.h>
 

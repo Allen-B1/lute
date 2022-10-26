@@ -182,7 +182,7 @@ typedef struct {
     size_t children_cap;
 } LuteGroup;
 
-extern const LuteColor LUTE_GROUP_DEFAULT_BACKGROUND;
+extern LuteColor LUTE_GROUP_DEFAULT_BACKGROUND;
 
 void lute_group_init(LuteGroup* group, LuteLayout layout);
 bool lute_group_add(LuteGroup* group, LuteWidget* child);

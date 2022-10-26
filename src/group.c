@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "lute.h"
+#include <lute.h>
 
 static const LuteWidgetTable GROUP_TABLE = {
     .resize = lute_group_resize,
