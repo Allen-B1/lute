@@ -8,7 +8,9 @@
 
 LuteState lute_xcb_state;
 
-void lute_init() {
+void lute_init(const char* theme) {
+    lute_internal_setup_theme(theme);
+
     lute_xcb_state.conn = xcb_connect(NULL, NULL);
     rhmap_init(&lute_xcb_state.windows, 0, (void*)rhmap_eq_int, (void*)rhmap_djb2_int);
 

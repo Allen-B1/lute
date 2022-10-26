@@ -22,8 +22,10 @@ typedef struct LuteButton {
     void* click_data;
 } LuteButton;
 
-extern LuteButtonStyle* const LUTE_BUTTON_DEFAULT_STYLE;
+extern const LuteButtonStyle* LUTE_BUTTON_DEFAULT_STYLE;
 extern LuteColor LUTE_BUTTON_PRIMARY_BACKGROUND;
+extern LuteColor LUTE_BUTTON_ACCENT_BACKGROUND;
+extern LuteColor LUTE_BUTTON_DANGER_BACKGROUND;
 
 void lute_button_init(LuteButton* button, LuteLayout layout, const char* label);
 void lute_button_draw(LuteWidget* widget, cairo_t* ctx, LuteRect rectToPaint);

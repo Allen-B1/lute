@@ -1,3 +1,4 @@
+/*
 #include <lute/widgets/button.h>
 
 void flat_button_draw_down(LuteButton* button, cairo_t* ctx) {
@@ -52,3 +53,4 @@ LuteButtonStyle* const LUTE_BUTTON_DEFAULT_STYLE = &FLAT_BUTTON_STYLE;
 LuteColor LUTE_BUTTON_PRIMARY_BACKGROUND = FLAT_BUTTON_PRIMARY_BACKGROUND;
 LuteColor LUTE_GROUP_DEFAULT_BACKGROUND = FLAT_GROUP_BACKGROUND;
 #endif
+*/

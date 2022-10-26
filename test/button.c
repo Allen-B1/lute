@@ -35,7 +35,7 @@ void add_handler(LuteButton* button, void* data) {
 }
 
 int main() {
-    lute_init();
+    lute_init(NULL);
 
     window = lute_window_new(256, 192, "Counter");
     lute_window_show(window);
@@ -47,9 +47,9 @@ int main() {
     LuteButton add_button;
     lute_button_init(&add_button, (LuteLayout){
         .x = {0.5, -(128 + 80 + 16) / 2},
-        .y = {0.5, -20},
+        .y = {0.5, -16},
         .width = {0, 128},
-        .height = {0, 40}
+        .height = {0, 32}
     }, "Add to 0");
     lute_button_set_click(&add_button, add_handler, NULL);
     lute_group_add(&group, (LuteWidget*)&add_button);
@@ -57,11 +57,11 @@ int main() {
     LuteButton clear_button;
     lute_button_init(&clear_button, (LuteLayout) {
         .x = {0.5, -(128 + 80 + 16) / 2 + 128 + 16},
-        .y = {0.5, -20},
+        .y = {0.5, -16},
         .width = {0, 80},
-        .height = {0, 40}
-    }, "Clear");
-    ((LuteWidget*)&clear_button)->background = 0xa4df44ff;
+        .height = {0, 32}
+    }, "Reset");
+    ((LuteWidget*)&clear_button)->background = LUTE_BUTTON_ACCENT_BACKGROUND;
     lute_button_set_click(&clear_button, clear_handler, &add_button);
     lute_group_add(&group, (LuteWidget*)&clear_button);
 

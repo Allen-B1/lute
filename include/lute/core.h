@@ -21,6 +21,9 @@ static inline uint8_t lute_color_blue(LuteColor color) {
 static inline uint8_t lute_color_alpha(LuteColor color) {
     return (color & 0xff);
 }
+static inline LuteColor lute_color_rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+    return (uint32_t)(r << 24) |  (uint32_t)(g << 16) | (uint32_t)(b << 8) | (uint32_t)(a);
+}
 
 typedef struct {
     uint16_t x;
@@ -225,8 +228,9 @@ static inline void lute_window_mark_dirty(LuteWindow* win, LuteWidget* widget) {
     lute_window_mark_dirty_rect(win, widget->_rect);
 }
 
-/** Initialize the library. */
-void lute_init();
+/** Initialize the library. `theme` may be `NULL`, in which case the user's preferred theme will be used.
+ */
+void lute_init(const char* theme);
 void lute_deinit();
 void lute_main();
 
