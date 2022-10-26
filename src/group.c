@@ -8,7 +8,8 @@ static const LuteWidgetTable GROUP_TABLE = {
     .deinit = lute_group_deinit,
 
     .on_mousedown = lute_group_on_mousedown,
-    .on_mouseup = lute_group_on_mouseup
+    .on_mouseup = lute_group_on_mouseup,
+    .on_mousemove = lute_group_on_mousemove,
 };
 
 void lute_group_init(LuteGroup* group, LuteLayout layout) {
@@ -81,7 +82,6 @@ void lute_group_on_mousedown(LuteWidget* widget, enum LuteMouseButton button, ui
 //        printf("child rect: %d %d %d %d\n", group->children[i]->_rect.x, group->children[i]->_rect.y, group->children[i]->_rect.width, group->children[i]->_rect.height);
 //        printf("intersects: %s\n", lute_rect_contains(group->children[i]->_rect, x, y) ? "yes": "no");
         if (group->children[i]->vtable->on_mousedown != NULL && lute_rect_contains(group->children[i]->_rect, x, y)) {
-            puts("intersect");
             group->children[i]->vtable->on_mousedown(group->children[i], button, x, y);
         }
     }
@@ -92,6 +92,15 @@ void lute_group_on_mouseup(LuteWidget* widget, enum LuteMouseButton button, uint
     for (int i = 0; i < group->children_len; i++) {
         if (group->children[i]->vtable->on_mouseup != NULL && lute_rect_contains(group->children[i]->_rect, x, y)) {
             group->children[i]->vtable->on_mouseup(group->children[i], button, x, y);
+        }
+    }
+}
+
+void lute_group_on_mousemove(LuteWidget* widget, uint16_t from_x, uint16_t from_y, uint16_t to_x, uint16_t to_y) {
+    LuteGroup* group = (LuteGroup*)widget;
+    for (int i = 0; i < group->children_len; i++) {
+        if (group->children[i]->vtable->on_mousemove != NULL && (lute_rect_contains(group->children[i]->_rect, from_x, from_y) || lute_rect_contains(group->children[i]->_rect, to_x, to_y))) {
+            group->children[i]->vtable->on_mousemove(group->children[i], from_x, from_y, to_x, to_y);
         }
     }
 }

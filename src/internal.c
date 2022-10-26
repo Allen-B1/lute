@@ -1,4 +1,5 @@
 #include "internal.h"
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <lute.h>

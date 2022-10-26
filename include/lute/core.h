@@ -148,6 +148,8 @@ typedef struct {
     void (*on_mousedown)(struct LuteWidget* widget, enum LuteMouseButton button, uint16_t x, uint16_t y);
     /** Optional. Called on a mouse up event */
     void (*on_mouseup)(struct LuteWidget* widget, enum LuteMouseButton button, uint16_t x, uint16_t y);
+    /** Optional. */
+    void (*on_mousemove)(struct LuteWidget* widget, uint16_t from_x, uint16_t from_y, uint16_t to_x, uint16_t to_y);
 } LuteWidgetTable;
 
 typedef struct LuteWidget {
@@ -195,6 +197,7 @@ void lute_group_draw(LuteWidget* widget, cairo_t* ctx, LuteRect rectToPaint);
 void lute_group_resize(LuteWidget* widget, LuteRect parent);
 void lute_group_on_mousedown(LuteWidget* widget, enum LuteMouseButton button, uint16_t x, uint16_t y);
 void lute_group_on_mouseup(LuteWidget* widget, enum LuteMouseButton button, uint16_t x, uint16_t y);
+void lute_group_on_mousemove(LuteWidget* widget, uint16_t from_x, uint16_t from_y, uint16_t to_x, uint16_t to_y);
 
 static inline LuteGroup* lute_group_new(LuteLayout layout) {
     LuteGroup* group = malloc(sizeof(LuteGroup));

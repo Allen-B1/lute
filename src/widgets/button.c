@@ -7,6 +7,7 @@ const LuteWidgetTable BUTTON_TABLE = {
     .deinit = NULL,
     .on_mousedown = lute_button_on_mousedown,
     .on_mouseup = lute_button_on_mouseup,
+    .on_mousemove = lute_button_on_mousemove
 };
 
 void lute_button_draw(LuteWidget* widget, cairo_t* ctx, LuteRect rectToPaint) {
@@ -49,4 +50,15 @@ void lute_button_on_mouseup(LuteWidget* widget, enum LuteMouseButton button, uin
     btn->down = false;
 
     lute_window_mark_dirty_rect(widget->window, widget->_rect);
+}
+
+void lute_button_on_mousemove(LuteWidget* widget, uint16_t from_x, uint16_t from_y, uint16_t to_x, uint16_t to_y) {
+    LuteButton* btn = (LuteButton*)widget;
+    bool in_from = lute_rect_contains(widget->_rect, from_x, from_y);
+    bool in_to = lute_rect_contains(widget->_rect, to_x, to_y);
+    
+    if (in_from && !in_to) {
+        btn->down = false;
+        lute_window_mark_dirty_rect(widget->window, widget->_rect);
+    }
 }

@@ -95,7 +95,7 @@ static void handle_events(ArrList* events) {
                 xcb_window_t id = expose->window;
                 LuteWindow* win = rhmap_get(&lute_xcb_state.windows, (void*)id);
                 if (win == NULL) {
-                    fprintf(stderr, "Lute error: window in expose does not exist");
+                    fprintf(stderr, "Lute error: window in expose does not exist\n");
                     continue;
                 }
 
@@ -113,7 +113,7 @@ static void handle_events(ArrList* events) {
                 xcb_window_t id = btn->event;
                 LuteWindow* win = rhmap_get(&lute_xcb_state.windows, (void*)id);
                 if (win == NULL) {
-                    fprintf(stderr, "Lute error: window in button press event does not exist");
+                    fprintf(stderr, "Lute error: window in button press event does not exist\n");
                     continue;
                 }
                 enum LuteMouseButton button = button_xcb_to_mouse(btn->detail);
@@ -121,7 +121,7 @@ static void handle_events(ArrList* events) {
                     win->root->vtable->on_mousedown(win->root, button, btn->event_x, btn->event_y);
                 }
 
-                printf("button press event: %d (%d, %d)\n", btn->detail, btn->event_x, btn->event_y);
+//                printf("button press event: %d (%d, %d)\n", btn->detail, btn->event_x, btn->event_y);
 
                 break; }
             case XCB_BUTTON_RELEASE: {
@@ -129,13 +129,33 @@ static void handle_events(ArrList* events) {
                 xcb_window_t id = btn->event;
                 LuteWindow* win = rhmap_get(&lute_xcb_state.windows, (void*)id);
                 if (win == NULL) {
-                    fprintf(stderr, "Lute error: window in button press event does not exist");
+                    fprintf(stderr, "Lute error: window in button release event does not exist\n");
                     continue;
                 }
                 enum LuteMouseButton button = button_xcb_to_mouse(btn->detail);
                 if (win->root != NULL && win->root->vtable->on_mouseup != NULL) {
                     win->root->vtable->on_mouseup(win->root, button, btn->event_x, btn->event_y);
                 }
+                break; }
+            case XCB_MOTION_NOTIFY: {
+                xcb_motion_notify_event_t* motion = (xcb_motion_notify_event_t*)event;
+                xcb_window_t id = motion->event;
+                LuteWindow* win = rhmap_get(&lute_xcb_state.windows, (void*)id);
+                if (win == NULL) {
+                    fprintf(stderr, "Lute error: window in motion notify event does not exist\n");
+                    continue;
+                }
+                uint16_t old_x = win->x;
+                uint16_t old_y = win->y;
+                win->x = motion->event_x;
+                win->y = motion->event_y;
+                
+//                printf("motion notify event: (%d, %d)\n", motion->event_x, motion->event_y);
+
+                if (win->root != NULL && win->root->vtable->on_mousemove != NULL && (lute_rect_contains(win->root->_rect, old_x, old_y) || lute_rect_contains(win->root->_rect, win->x, win->y))) {
+                    win->root->vtable->on_mousemove(win->root, old_x, old_y, win->x, win->y);
+                }
+
                 break; }
         }
     }

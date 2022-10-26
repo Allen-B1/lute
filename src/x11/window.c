@@ -16,8 +16,11 @@ LuteWindow* lute_window_new(uint16_t width, uint16_t height, const char* title) 
     if (obj == NULL) return NULL;
     obj->id = win;
     obj->root = NULL;
+
     obj->width = width;
     obj->height = height;
+    obj->x = UINT16_MAX;
+    obj->y = UINT16_MAX;
 
     rhmap_set(&lute_xcb_state.windows, (void*)win, obj);
 
